@@ -6,6 +6,8 @@
 
 \input{FJHDef.tex}
 
+\newcommand{\rvf}{\mathring{\vf}}
+
 
 \usepackage{algpseudocode}
 \usepackage{algorithm, algorithmicx}
@@ -75,18 +77,73 @@ Now consider the entries of the Gram matrix for a periodic kernel:
 \begin{align*}
     K(\vx_i,\vx_j)  &= \sum_{\vk \in \integers^d} \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T(\vx_i - \vx_j)) \\
     & = \sum_{\vk \in \integers^d} \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T \vh (i-j)/n) \\
-    & = \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l (i-j)/n), \quad \lambda_l =: \sum_{\substack{\vk \in \integers^d \\ \vk^T\vh \bmod n = l}} \omega_{\vk}^2 \\
+    & = \frac 1n \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l (i-j)/n), \quad \lambda_l =: n\sum_{\substack{\vk \in \integers^d \\ \vk^T\vh \bmod n = l}} \omega_{\vk}^2, \\
     \MoveEqLeft \underbrace{\bigl ( K(\vx_i,\vx_j)\bigr)_{i,j = 0}^{n-1}}_{\mK} \\
     &
-    = \underbrace{\bigl ( \exp(-2 \pi \sqrt{-1} jl/n) \bigr)_{j,l = 0}^{n-1}}_{\mV^H} 
-    \underbrace{\bigl ( \lambda_l \delta_{l,m} \bigr)_{l,m = 0}^{n-1}}_{\diag(\vlambda)} 
-    \underbrace{\bigl ( \exp(2 \pi \sqrt{-1} mi/n) \bigr)_{m,i = 0}^{n-1}}_{\mV}
+    = \frac 1n \underbrace{\bigl ( \exp(2 \pi \sqrt{-1} il/n) \bigr)_{i,l = 0}^{n-1}}_{\mV} 
+    \underbrace{\bigl ( \lambda_l \delta_{l,m} \bigr)_{l,m = 0}^{n-1}}_{\mLambda = \diag(\vlambda)} 
+    \underbrace{\bigl ( \exp(- 2 \pi \sqrt{-1} mj/n) \bigr)_{m,j = 0}^{n-1}}_{\mV^H}
 \end{align*}
-Moreover, not that 
+Since $\mV^H \mV = n \mI$, it follows that $\mK \mV  =\mV \mLambda)$, and so $\vlambda$ are the eigenvalues of $\mK$.  Note that the first column of $\mK$ is 
+\begin{equation*}
+    \vK_0 = \bigl ( K(\vx_i,\vx_0)\bigr)_{i = 0}^{n-1}
+    = \biggl( \frac 1n \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l i/n)\biggr)_{i=1}^n = \frac 1n \mV \vlambda,
+\end{equation*}
+and so 
+\begin{equation*}
+    \mV^{H} \vK_0 = \mV^{H} \frac 1n \mV \vlambda = \vlambda 
+\end{equation*}
 
-\section{Optimizing the Kernel according to Empirical Bayes}
+Also, letting $\vf := \bigl( f(\vx_i) \bigr)_{i=1}^n$ and $\rvf := \bigl( \rf(\vx_i) \bigr)_{i=1}^n$, it follows that
+\begin{equation}
+    \rvf = \frac 1n \mV^H \vf, \qquad \vf = \mV \rvf
+\end{equation}
 
 
+
+\section{Optimizing the Kernel according to Empirical Bayes or Generalized Cross-Validation Assuming Arbitrary $\lambda_i$}
+According to \cite{RatHic19a}, the empirical Bayes choice of parameters defining the kernel is
+\begin{align*}
+    \vtheta_{\text{EB}} 
+    &= \argmin_{\vtheta} \left [\log\left( \sum_{i=1}^{n-1} \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}} \right)
+    + \frac 1n \sum_{i=0}^{n-1} \log(\lambda_{\vtheta,i} ) \right ]
+\end{align*}
+
+Suppose for a moment that the $\lambda_{\vtheta}$ can be chosen arbitrarily.   We know this is not true, but it is easy to solve the problem under this assumption.  Dropping the $\vtheta$ dependence, we want to satisfy
+\begin{gather*}
+    \frac 1{\lambda_0} = 0, \qquad 
+    - \frac{\lvert\rf_i\rvert^2}{\lambda_{i}^2} \left( \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{j}} \right)^{-1} + \frac 1{n\lambda_i} = 0, \quad i = 1, \ldots, n-1
+    \\
+    \iff
+    \lambda_0 = \infty, \qquad \frac{\lvert\rf_i\rvert^2}{\lambda_{i}} = \frac 1n \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{j}}, \quad i = 1, \ldots, n-1
+    \\
+    \iff
+    \lambda_0 = \infty, \qquad \lambda_i = c \lvert\rf_i\rvert^2, \quad i = 1, \ldots, n-1.
+\end{gather*}
+
+According to \cite{RatHic19a}, the generalized cross-validation choice of parameters defining the kernel is
+\begin{align*}
+    \vtheta_{\text{GCV}} 
+    &= \argmin_{\vtheta} \left [\log\left( \sum_{i=1}^{n-1} \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}^2} \right)
+    - 2 \log \left(\sum_{i=0}^{n-1} \frac{1}{\lambda_{\vtheta,i}} \right) \right ]
+\end{align*}
+
+Again, suppose for a moment that the $\lambda_{\vtheta}$ can be chosen arbitrarily.  Dropping the $\vtheta$ dependence, we want to satisfy
+\begin{gather*}
+    \begin{cases}
+    \displaystyle \frac {2}{\lambda_0^2} \left( \sum_{j=0}^{n-1} \frac{1}{\lambda_{j}} \right)^{-1}  = 0, \\ 
+    \displaystyle - \frac{2\lvert\rf_i\rvert^2}{\lambda_{i}^3} \left( \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{j}^2} \right)^{-1} +  \frac{2}{\lambda_i^2} \left( \sum_{j=0}^{n-1} \frac{1}{\lambda_{j}} \right)^{-1} = 0, \quad i = 1, \ldots, n-1
+    \end{cases}
+    \\
+    \iff
+    \begin{cases}
+    \lambda_0 = \infty,  \\ 
+    \displaystyle \frac{\lvert\rf_i\rvert^2}{\lambda_{i}} =  \left( \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{j}^2} \right) \, \left( \sum_{j=1}^{n-1} \frac{1}{\lambda_{j}} \right)^{-1} = 0, \quad i = 1, \ldots, n-1
+    \end{cases}
+    \\
+    \iff
+     \lambda_0 = \infty, \qquad \lambda_i = c \lvert\rf_i\rvert^2, \quad i = 1, \ldots, n-1.
+\end{gather*}
 
 \bibliographystyle{amsplain}
 \bibliography{FJH25,FJHown25}
