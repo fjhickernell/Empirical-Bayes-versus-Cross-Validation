@@ -7,6 +7,7 @@
 \input{FJHDef.tex}
 
 \newcommand{\rvf}{\mathring{\vf}}
+\newcommand{\gp}{\mathcal{G}\!\mathcal{P}}
 
 
 \usepackage{algpseudocode}
@@ -36,11 +37,11 @@ Let $f$ have an absolutely summable Fourier series
 \begin{equation*}
     f(\vx) = \sum_{\vk \in \integers^d} \hf(\vk) \exp(2 \pi \sqrt{-1} \vk^T \vx), \qquad \hf(\vk) : = \int_{[0,1]^d} f(\vx)  \exp(-2 \pi \sqrt{-1} \vk^T \vx) \, \dif \vx.
 \end{equation*}
-Suppose that $\{ \vx_1, \ldots, \vx_n\}$ is a shifted integration lattice, 
-\begin{equation*}
+Suppose that the sampling sites or nodes constitutes $\{ \vx_1, \ldots, \vx_n\}$ is a shifted integration lattice, 
+\begin{equation} \label{eq:shift_lat}
     \vx_i = \vh i /n + \vDelta \pmod \vone, \qquad i = 0, \ldots, n - 1
-\end{equation*}
-where $\vh \in \{1, \ldots, n-1\}^d$.  Then the DFT of the function data, $\{ f(\vx_0), \ldots, f(\vx_{n)-1}\}$, is given by 
+\end{equation}
+where $\vh \in \{1, \ldots, n-1\}^d$.  Then the discrete Fourier transform (DFT) of the function data, $\{ f(\vx_0), \ldots, f(\vx_{n)-1}\}$, is given by 
 \begin{align*}
     \tf(\vk) &= \frac 1n \sum_{i=1}^n f(\vx_i) \exp(-2 \pi \sqrt{-1} \vk^T \vx_i) \\
     & = \frac 1n \sum_{i=1}^n f(\vx_i) \exp(-2 \pi \sqrt{-1} [\vk^T\vh i/n + \vk^T\vDelta]) \\
@@ -53,7 +54,7 @@ where $\vh \in \{1, \ldots, n-1\}^d$.  Then the DFT of the function data, $\{ f(
 \end{align*}
 Note that the DFT takes on only $n$ distinct values. 
 
-Now consider a periodic kernel:
+We want to consider functions that are samples from a Gaussian process with a covariance kernel, $K$, and/or elements in a Hilbert space with reproducing kernel $K$.  The $K$ is assumed to be  periodic:
 \begin{equation*}
     K(\vt,\vx) = \sum_{\vk \in \integers^d} \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T (\vt - \vx))
 \end{equation*}
@@ -61,7 +62,9 @@ where the set of weights, $\vomega : = (\omega_{\vk})_{\vk \in \integers^d}$, sa
 \begin{equation*}
     \sum_{\vk \in \integers^d} \omega_{\vk}^2 < \infty.
 \end{equation*}
-We assume that $\omega_{-\vk} = \omega_{\vk}$ For such a kernel, the inner product of the associated reproducing kernel Hilbert space is defined by 
+We must assume that $\omega_{-\vk} = \omega_{\vk}$  because the kernel $K$ must be symmetric in its arguments. 
+
+For such a kernel, the inner product of the associated reproducing kernel Hilbert space is defined by 
 \begin{equation*}
     \ip[\vomega]{f}{g} = \sum_{\vk \in \integers^d} 
     \frac{\overline{\hf(\vk)} \hg(\vk)}{\omega_{\vk}^2}
@@ -73,7 +76,7 @@ The reproducing property follows because $K(\cdot,\vx)$ is in the Hilbert space,
     \frac{ \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T \vx)) \hf(\vk)}{\omega_{\vk}^2} = f(\vx).
 \end{equation*}
 
-Now consider the entries of the Gram matrix for a periodic kernel:
+Now consider the entries of the Gram matrix for a periodic kernel where the sampling sites or nodes are a shifted lattice as defined in \eqref{eq:shift_lat}:
 \begin{align*}
     K(\vx_i,\vx_j)  &= \sum_{\vk \in \integers^d} \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T(\vx_i - \vx_j)) \\
     & = \sum_{\vk \in \integers^d} \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T \vh (i-j)/n) \\
@@ -84,7 +87,7 @@ Now consider the entries of the Gram matrix for a periodic kernel:
     \underbrace{\bigl ( \lambda_l \delta_{l,m} \bigr)_{l,m = 0}^{n-1}}_{\mLambda = \diag(\vlambda)} 
     \underbrace{\bigl ( \exp(- 2 \pi \sqrt{-1} mj/n) \bigr)_{m,j = 0}^{n-1}}_{\mV^H}
 \end{align*}
-Since $\mV^H \mV = n \mI$, it follows that $\mK \mV  =\mV \mLambda)$, and so $\vlambda$ are the eigenvalues of $\mK$.  Note that the first column of $\mK$ is 
+Since $\mV^H \mV = n \mI$, it follows that $\mK \mV  =\mV \mLambda)$, and so $\vlambda$ are the eigenvalues of $\mK$.  Note that the first (or zeroth) column of $\mK$ is 
 \begin{equation*}
     \vK_0 = \bigl ( K(\vx_i,\vx_0)\bigr)_{i = 0}^{n-1}
     = \biggl( \frac 1n \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l i/n)\biggr)_{i=1}^n = \frac 1n \mV \vlambda,
@@ -98,6 +101,27 @@ Also, letting $\vf := \bigl( f(\vx_i) \bigr)_{i=1}^n$ and $\rvf := \bigl( \rf(\v
 \begin{equation}
     \rvf = \frac 1n \mV^H \vf, \qquad \vf = \mV \rvf
 \end{equation}
+
+\section{Optimizing the Kernel According to Empirical Bayes}
+We assume that the function $f$ is an instance of a zero mean Gaussian process, i.e., $f \in \gp(0,s^2K_{\vtheta})$, where we now show the explicit dependence of the
+kernel $K$ on the hyperparameters $\vtheta$ as well as the hyperparameter $s^2$, which is the overall vertical scale.
+This means that $\{\omega_{\vk}\}_{\vk \in \integers^d}$, and $\{\lambda_l \}_{l=0}^{n-1}$ all depend on $\vtheta$ as well, but $\mV$ does not.
+
+In the empirical Bayes setting, we assume that $f \in \gp(0,s^2K_{\vtheta})$, where we now show the explicit dependence of the
+kernel $K$ on the hyperparameters $\vtheta$ as well as the hyperparameter $s^2$, which is the overall vertical scaling.  
+The log likelihood (ignoring constants) given the data $\vf$ is writtem as 
+\begin{align}
+	\text{loglike}(s^2,\vtheta) 
+	& = - \frac 1{2} \vf^T (s^2\mK_{\vtheta})^{-1}\vf - \frac 12 \log\bigl(\det(s^2 \mK_{\vtheta})\bigr)  \\
+	\nonumber 
+	& = - \frac 1{2 s^2} \vf^T\Bigl(\frac 1n \mV \mLambda_{\vtheta}^{-1} \mV^H \Bigr)\vf 
+	- \frac 12 \log\biggl(\prod_{l=0}^{n-1} \lambda_{\vtheta,l}\biggr) - n \log(s)  \\
+	\nonumber 
+	& = - \frac n{2 s^2} \rvf^T\mLambda_{\vtheta}^{-1} \rvf 
+- \frac 12 \sum_{l=0}^{n-1} \log(\lambda_{\vtheta,l}) - n \log(s)  \\
+\nonumber 
+\end{align}
+Maximizing the above quantity with respect to $s^2$ 
 
 
 
