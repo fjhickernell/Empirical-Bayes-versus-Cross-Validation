@@ -87,7 +87,7 @@ Now consider the entries of the Gram matrix for a periodic kernel where the samp
     \underbrace{\bigl ( \lambda_l \delta_{l,m} \bigr)_{l,m = 0}^{n-1}}_{\mLambda = \diag(\vlambda)} 
     \underbrace{\bigl ( \exp(- 2 \pi \sqrt{-1} mj/n) \bigr)_{m,j = 0}^{n-1}}_{\mV^H}
 \end{align*}
-Since $\mV^H \mV = n \mI$, it follows that $\mK \mV  =\mV \mLambda)$, and so $\vlambda$ are the eigenvalues of $\mK$.  Note that the first (or zeroth) column of $\mK$ is 
+Since $\mV^H \mV = n \mI$, it follows that $\mK \mV  =\mV \mLambda)$, and so $\vlambda$ are the eigenvalues of $\mK$.  It also follows that $\mK^{-1} = n^{-1} \mV \mLambda \mV^H$.  Note that the first (or zeroth) column of $\mK$ is 
 \begin{equation*}
     \vK_0 = \bigl ( K(\vx_i,\vx_0)\bigr)_{i = 0}^{n-1}
     = \biggl( \frac 1n \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l i/n)\biggr)_{i=1}^n = \frac 1n \mV \vlambda,
@@ -118,7 +118,7 @@ The log likelihood (ignoring constants) given the data $\vf$ is writtem as
 	- \frac 12 \log\biggl(\prod_{l=0}^{n-1} \lambda_{\vtheta,l}\biggr) - n \log(s)  \\
 	\nonumber 
 	& = - \frac n{2 s^2} \rvf^T\mLambda_{\vtheta}^{-1} \rvf 
-- \frac 12 \sum_{l=0}^{n-1} \log(\lambda_{\vtheta,l}) - n \log(s)  \\
+- \frac 12 \sum_{l=0}^{n-1} \log(\lambda_{\vtheta,l}) - \frac{n}2 \log(s^2)  \\
 \nonumber 
 \end{align}
 Maximizing the above quantity with respect to $s^2$ 
