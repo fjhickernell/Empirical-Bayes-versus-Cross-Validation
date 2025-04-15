@@ -41,7 +41,7 @@ Suppose that the sampling sites or nodes constitutes $\{ \vx_1, \ldots, \vx_n\}$
 \begin{equation} \label{eq:shift_lat}
     \vx_i = \vh i /n + \vDelta \pmod \vone, \qquad i = 0, \ldots, n - 1
 \end{equation}
-where $\vh \in \{1, \ldots, n-1\}^d$.  Then the discrete Fourier transform (DFT) of the function data, $\{ f(\vx_0), \ldots, f(\vx_{n)-1}\}$, is given by 
+where $\vh \in \{1, \ldots, n-1\}^d$.  Then the discrete Fourier transform (DFT) of the function data, $\{ f(\vx_0), \ldots, f(\vx_{n-1})\}$, is given by 
 \begin{align*}
     \tf(\vk) &= \frac 1n \sum_{i=1}^n f(\vx_i) \exp(-2 \pi \sqrt{-1} \vk^T \vx_i) \\
     & = \frac 1n \sum_{i=1}^n f(\vx_i) \exp(-2 \pi \sqrt{-1} [\vk^T\vh i/n + \vk^T\vDelta]) \\
@@ -90,60 +90,76 @@ Now consider the entries of the Gram matrix for a periodic kernel where the samp
 Since $\mV^H \mV = n \mI$, it follows that $\mK \mV  =\mV \mLambda)$, and so $\vlambda$ are the eigenvalues of $\mK$.  It also follows that $\mK^{-1} = n^{-1} \mV \mLambda \mV^H$.  Note that the first (or zeroth) column of $\mK$ is 
 \begin{equation*}
     \vK_0 = \bigl ( K(\vx_i,\vx_0)\bigr)_{i = 0}^{n-1}
-    = \biggl( \frac 1n \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l i/n)\biggr)_{i=1}^n = \frac 1n \mV \vlambda,
+    = \biggl( \frac 1n \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l i/n)\biggr)_{i=1}^n = \frac 1n \mV \vlambda.
 \end{equation*}
-and so 
-\begin{equation*}
-    \mV^{H} \vK_0 = \mV^{H} \frac 1n \mV \vlambda = \vlambda 
-\end{equation*}
-
-Also, letting $\vf := \bigl( f(\vx_i) \bigr)_{i=1}^n$ and $\rvf := \bigl( \rf(\vx_i) \bigr)_{i=1}^n$, it follows that
+Letting $\vf := \bigl( f(\vx_i) \bigr)_{i=1}^n$ and $\rvf := \bigl( \rf(\vx_i) \bigr)_{i=1}^n$, it follows that the DFT and the inverse DFT (IDFT) can be expressed in terms of matrix operations involving $\mV^H$ and $\mV$
 \begin{equation}
     \rvf = \frac 1n \mV^H \vf, \qquad \vf = \mV \rvf
 \end{equation}
+Thus, the eigenvalues of the Gram matrix are simply the $n$ times the DFT of its first column:
+\begin{equation*}
+    \mV^{H} \vK_0 = \mV^{H} \frac 1n \mV \vlambda = \vlambda.
+\end{equation*}
 
 \section{Optimizing the Kernel According to Empirical Bayes}
+\subsection{Initial optimization for the vertical scale factor}
 We assume that the function $f$ is an instance of a zero mean Gaussian process, i.e., $f \in \gp(0,s^2K_{\vtheta})$, where we now show the explicit dependence of the
 kernel $K$ on the hyperparameters $\vtheta$ as well as the hyperparameter $s^2$, which is the overall vertical scale.
 This means that $\{\omega_{\vk}\}_{\vk \in \integers^d}$, and $\{\lambda_l \}_{l=0}^{n-1}$ all depend on $\vtheta$ as well, but $\mV$ does not.
 
 In the empirical Bayes setting, we assume that $f \in \gp(0,s^2K_{\vtheta})$, where we now show the explicit dependence of the
 kernel $K$ on the hyperparameters $\vtheta$ as well as the hyperparameter $s^2$, which is the overall vertical scaling.  
-The log likelihood (ignoring constants) given the data $\vf$ is writtem as 
+The log likelihood (ignoring additive constants) given the data $\vf$ is written as 
 \begin{align}
 	\text{loglike}(s^2,\vtheta) 
 	& = - \frac 1{2} \vf^T (s^2\mK_{\vtheta})^{-1}\vf - \frac 12 \log\bigl(\det(s^2 \mK_{\vtheta})\bigr)  \\
 	\nonumber 
 	& = - \frac 1{2 s^2} \vf^T\Bigl(\frac 1n \mV \mLambda_{\vtheta}^{-1} \mV^H \Bigr)\vf 
-	- \frac 12 \log\biggl(\prod_{l=0}^{n-1} \lambda_{\vtheta,l}\biggr) - n \log(s)  \\
+	- \frac 12 \log\biggl(\prod_{i=0}^{n-1} \lambda_{\vtheta,i}\biggr) - n \log(s)  \\
 	\nonumber 
 	& = - \frac n{2 s^2} \rvf^T\mLambda_{\vtheta}^{-1} \rvf 
-- \frac 12 \sum_{l=0}^{n-1} \log(\lambda_{\vtheta,l}) - \frac{n}2 \log(s^2)  \\
-\nonumber 
+- \frac 12 \sum_{i=0}^{n-1} \log(\lambda_{\vtheta,i}) - \frac{n}2 \log(s^2).
 \end{align}
-Maximizing the above quantity with respect to $s^2$ 
 
-
-
-\section{Optimizing the Kernel according to Empirical Bayes or Generalized Cross-Validation Assuming Arbitrary $\lambda_i$}
-According to \cite{RatHic19a}, the empirical Bayes choice of parameters defining the kernel is
-\begin{align*}
+Maximizing the above quantity with respect to $s^2$ leads to 
+\begin{equation*}
+    0  =\frac{\partial \text{loglike}(s^2,\vtheta)}{\partial s^2}
+    = \frac n{2 s^4} \rvf^T\mLambda_{\vtheta}^{-1} \rvf 
+ - \frac{n}2 \frac {1}{s^2}
+ \iff s^2 = s_{\text{EB}}^2 := \rvf^T\mLambda_{\vtheta}^{-1} \rvf .
+\end{equation*}
+Then, ignoring additive constants,
+\begin{equation*}
+    \text{loglike}(s_{\text{EB}}^2,\vtheta) 
+	= 
+- \frac 12 \sum_{i=0}^{n-1} \log(\lambda_{\vtheta,i}) - \frac n2 \log\bigl(\rvf^T\mLambda_{\vtheta}^{-1} \rvf \bigr).
+\end{equation*}
+This means that the empirical Bayes formula for $\vtheta$ is
+\begin{equation}
     \vtheta_{\text{EB}} 
-    &= \argmin_{\vtheta} \left [\log\left( \sum_{i=1}^{n-1} \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}} \right)
+    = \argmin_{\vtheta} \left [\log\left( \sum_{i=0}^{n-1} \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}} \right)
     + \frac 1n \sum_{i=0}^{n-1} \log(\lambda_{\vtheta,i} ) \right ]
-\end{align*}
+\end{equation}
 
-Suppose for a moment that the $\lambda_{\vtheta}$ can be chosen arbitrarily.   We know this is not true, but it is easy to solve the problem under this assumption.  Dropping the $\vtheta$ dependence, we want to satisfy
-\begin{gather*}
-    \frac 1{\lambda_0} = 0, \qquad 
-    - \frac{\lvert\rf_i\rvert^2}{\lambda_{i}^2} \left( \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{j}} \right)^{-1} + \frac 1{n\lambda_i} = 0, \quad i = 1, \ldots, n-1
+
+\subsection{Optimizing  $\vtheta$ $\lambda_i$}
+Suppose for a moment that the $\lambda_{\vtheta,i}$ can be chosen arbitrarily.   We know this is not true, but it is easy to solve the problem under this assumption.  Dropping the $\vtheta$ dependence, we want to satisfy
+\begin{multline*} 
+    - \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}^2} \left( \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{\vtheta, j}} \right)^{-1} + \frac 1{n\lambda_{\vtheta,i}} = 0, \quad i = 0, \ldots, n-1
     \\
     \iff
-    \lambda_0 = \infty, \qquad \frac{\lvert\rf_i\rvert^2}{\lambda_{i}} = \frac 1n \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{j}}, \quad i = 1, \ldots, n-1
+    \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}} = \frac 1n \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{\vtheta,j}}, \quad i = 0, \ldots, n-1
     \\
     \iff
-    \lambda_0 = \infty, \qquad \lambda_i = c \lvert\rf_i\rvert^2, \quad i = 1, \ldots, n-1.
-\end{gather*}
+    \lambda_{\vtheta,i} = c \lvert\rf_i\rvert^2, \quad i = 0, \ldots, n-1.
+\end{multline*}
+
+\bibliographystyle{amsplain}
+\bibliography{FJH25,FJHown25}
+
+\end{document}
+
+
 
 According to \cite{RatHic19a}, the generalized cross-validation choice of parameters defining the kernel is
 \begin{align*}
@@ -169,7 +185,3 @@ Again, suppose for a moment that the $\lambda_{\vtheta}$ can be chosen arbitrari
      \lambda_0 = \infty, \qquad \lambda_i = c \lvert\rf_i\rvert^2, \quad i = 1, \ldots, n-1.
 \end{gather*}
 
-\bibliographystyle{amsplain}
-\bibliography{FJH25,FJHown25}
-
-\end{document}
