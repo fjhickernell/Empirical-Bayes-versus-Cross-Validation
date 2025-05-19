@@ -7,6 +7,7 @@
 \input{FJHDef.tex}
 
 \newcommand{\rvf}{\mathring{\vf}}
+\newcommand{\romega}{\mathring{\omega}}
 \newcommand{\gp}{\mathcal{G}\!\mathcal{P}}
 
 
@@ -33,7 +34,7 @@
 \section{Introduction}
 
 \section{Background}
-Let $f$ have an absolutely summable Fourier series
+Let $f$ have an absolutely summable Fourier series:
 \begin{equation*}
     f(\vx) = \sum_{\vk \in \integers^d} \hf(\vk) \exp(2 \pi \sqrt{-1} \vk^T \vx), \qquad \hf(\vk) : = \int_{[0,1]^d} f(\vx)  \exp(-2 \pi \sqrt{-1} \vk^T \vx) \, \dif \vx.
 \end{equation*}
@@ -42,22 +43,28 @@ Suppose that the sampling sites or nodes constitutes $\{ \vx_1, \ldots, \vx_n\}$
     \vx_i = \vh i /n + \vDelta \pmod \vone, \qquad i = 0, \ldots, n - 1
 \end{equation}
 where $\vh \in \{1, \ldots, n-1\}^d$.  Then the discrete Fourier transform (DFT) of the function data, $\{ f(\vx_0), \ldots, f(\vx_{n-1})\}$, is given by 
-\begin{align*}
+\begin{align}
+\nonumber
     \tf(\vk) &= \frac 1n \sum_{i=1}^n f(\vx_i) \exp(-2 \pi \sqrt{-1} \vk^T \vx_i) \\
+\nonumber
     & = \frac 1n \sum_{i=1}^n f(\vx_i) \exp(-2 \pi \sqrt{-1} [\vk^T\vh i/n + \vk^T\vDelta]) \\
+\nonumber
     & = \rf(\vk^T \vh \bmod n) \exp(-2 \pi \sqrt{-1} \vk^T\vDelta), \\
     \text{where } 
-    \rf(j) &: = \frac 1n \sum_{i=1}^n f(\vx_i) \exp(-2 \pi \sqrt{-1} ij/n), \quad  j = 0, \ldots, n-1 \\
+    \rf(j) &: = \frac 1n \sum_{i=1}^n f(\vx_i) \exp(-2 \pi \sqrt{-1} ij/n), \quad  j = 0, \ldots, n-1 \qquad \label{eq:fring}\\
+\nonumber
     & = \frac 1n \sum_{i=1}^n \sum_{\vk \in \integers^d} \hf(\vk) \exp(2 \pi \sqrt{-1} \vk^T \vx_i) \exp(-2 \pi \sqrt{-1} ij/n) \\
+\nonumber
     & = \frac 1n \sum_{\vk \in \integers^d} \hf(\vk) \sum_{i=1}^n \exp(2 \pi \sqrt{-1} i (\vk^T \vh - j) /n + \vk^T \vDelta) \\
+\nonumber
     & = \sum_{\substack{\vk \in \integers^d \\ \vk^T \vh \bmod n = j}} \hf(\vk) \exp(2 \pi \sqrt{-1} \vk^T \vDelta) \\
-\end{align*}
+\end{align}
 Note that the DFT takes on only $n$ distinct values. 
 
 We want to consider functions that are samples from a Gaussian process with a covariance kernel, $K$, and/or elements in a Hilbert space with reproducing kernel $K$.  The $K$ is assumed to be  periodic:
-\begin{equation*}
+\begin{equation} \label{eq:Kseries}
     K(\vt,\vx) = \sum_{\vk \in \integers^d} \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T (\vt - \vx))
-\end{equation*}
+\end{equation}
 where the set of weights, $\vomega : = (\omega_{\vk})_{\vk \in \integers^d}$, satisfies the following summability condition:
 \begin{equation*}
     \sum_{\vk \in \integers^d} \omega_{\vk}^2 < \infty.
@@ -77,29 +84,39 @@ The reproducing property follows because $K(\cdot,\vx)$ is in the Hilbert space,
 \end{equation*}
 
 Now consider the entries of the Gram matrix for a periodic kernel where the sampling sites or nodes are a shifted lattice as defined in \eqref{eq:shift_lat}:
-\begin{align*}
+\begin{align}
+\nonumber
     K(\vx_i,\vx_j)  &= \sum_{\vk \in \integers^d} \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T(\vx_i - \vx_j)) \\
+    \nonumber
     & = \sum_{\vk \in \integers^d} \omega_{\vk}^2 \exp(2 \pi \sqrt{-1} \vk^T \vh (i-j)/n) \\
+    \label{eq:lambdaomega}
     & = \frac 1n \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l (i-j)/n), \quad \lambda_l =: n\sum_{\substack{\vk \in \integers^d \\ \vk^T\vh \bmod n = l}} \omega_{\vk}^2, \\
+    \nonumber
     \MoveEqLeft \underbrace{\bigl ( K(\vx_i,\vx_j)\bigr)_{i,j = 0}^{n-1}}_{\mK} \\
+    \nonumber
     &
     = \frac 1n \underbrace{\bigl ( \exp(2 \pi \sqrt{-1} il/n) \bigr)_{i,l = 0}^{n-1}}_{\mV} 
     \underbrace{\bigl ( \lambda_l \delta_{l,m} \bigr)_{l,m = 0}^{n-1}}_{\mLambda = \diag(\vlambda)} 
     \underbrace{\bigl ( \exp(- 2 \pi \sqrt{-1} mj/n) \bigr)_{m,j = 0}^{n-1}}_{\mV^H}
-\end{align*}
-Since $\mV^H \mV = n \mI$, it follows that $\mK \mV  =\mV \mLambda)$, and so $\vlambda$ are the eigenvalues of $\mK$.  It also follows that $\mK^{-1} = n^{-1} \mV \mLambda \mV^H$.  Note that the first (or zeroth) column of $\mK$ is 
+\end{align}
+
+Since $\mV^H \mV = n \mI$, it follows that $\mV^{-1} = \mV^H/n$.  Then, 
+$\mK \mV  =\mV \mLambda$, and so $\vlambda$ are the eigenvalues of $\mK$.  It also follows that $\mK^{-1} = n^{-1} \mV \mLambda \mV^H$.  
+Letting $\vf := \bigl( f(\vx_i) \bigr)_{i=1}^n$ and $\rvf := \bigl( \rf(\vx_i) \bigr)_{i=1}^n$, it follows from \eqref{eq:fring} that the DFT and the inverse DFT (IDFT) can be expressed in terms of matrix operations involving $\mV^H$ and $\mV$
+\begin{equation}
+    \rvf = \frac 1n \mV^H \vf, \qquad \vf = \mV \rvf.
+\end{equation}
+
+Note that the first (or zeroth) column of $\mK$ is 
 \begin{equation*}
     \vK_0 = \bigl ( K(\vx_i,\vx_0)\bigr)_{i = 0}^{n-1}
     = \biggl( \frac 1n \sum_{l = 0}^{n-1} \lambda_l \exp(2 \pi \sqrt{-1} l i/n)\biggr)_{i=1}^n = \frac 1n \mV \vlambda.
 \end{equation*}
-Letting $\vf := \bigl( f(\vx_i) \bigr)_{i=1}^n$ and $\rvf := \bigl( \rf(\vx_i) \bigr)_{i=1}^n$, it follows that the DFT and the inverse DFT (IDFT) can be expressed in terms of matrix operations involving $\mV^H$ and $\mV$
-\begin{equation}
-    \rvf = \frac 1n \mV^H \vf, \qquad \vf = \mV \rvf
-\end{equation}
 Thus, the eigenvalues of the Gram matrix are simply the $n$ times the DFT of its first column:
 \begin{equation*}
     \mV^{H} \vK_0 = \mV^{H} \frac 1n \mV \vlambda = \vlambda.
 \end{equation*}
+
 
 \section{Optimizing the Kernel According to Empirical Bayes}
 \subsection{Initial optimization for the vertical scale factor}
@@ -135,36 +152,203 @@ Then, ignoring additive constants,
 - \frac 12 \sum_{i=0}^{n-1} \log(\lambda_{\vtheta,i}) - \frac n2 \log\bigl(\rvf^T\mLambda_{\vtheta}^{-1} \rvf \bigr).
 \end{equation*}
 This means that the empirical Bayes formula for $\vtheta$ is
-\begin{equation}
+\begin{equation} \label{eq:EBOpt}
     \vtheta_{\text{EB}} 
     = \argmin_{\vtheta} \left [\log\left( \sum_{i=0}^{n-1} \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}} \right)
     + \frac 1n \sum_{i=0}^{n-1} \log(\lambda_{\vtheta,i} ) \right ]
 \end{equation}
 
 
-\subsection{Optimizing  $\vtheta$ $\lambda_i$}
+\subsection{Optimizing  $\vtheta$ assuming arbitrary $\lambda_{\vtheta,i}$}
 Suppose for a moment that the $\lambda_{\vtheta,i}$ can be chosen arbitrarily.   We know this is not true, but it is easy to solve the problem under this assumption.  Dropping the $\vtheta$ dependence, we want to satisfy
 \begin{multline*} 
-    - \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}^2} \left( \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{\vtheta, j}} \right)^{-1} + \frac 1{n\lambda_{\vtheta,i}} = 0, \quad i = 0, \ldots, n-1
+    - \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}^2} \left( \sum_{j=0}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{\vtheta, j}} \right)^{-1} + \frac 1{n\lambda_{\vtheta,i}} = 0, \quad i = 0, \ldots, n-1
     \\
     \iff
-    \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}} = \frac 1n \sum_{j=1}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{\vtheta,j}}, \quad i = 0, \ldots, n-1
-    \\
-    \iff
-    \lambda_{\vtheta,i} = c \lvert\rf_i\rvert^2, \quad i = 0, \ldots, n-1.
+    \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}} = \frac 1n \sum_{j=0}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{\vtheta,j}}, \quad i = 0, \ldots, n-1.
 \end{multline*}
+Since the right side of this equation is independent of $i$, it follows that $\lambda_{\vtheta,i} = c \lvert\rf_i\rvert^2$ for some constant $c$ and $i = 0, \ldots, n-1$.  Plugging this into the equation above determines $c$ to be unity.
+
+\subsection{Optimizing  $\vtheta$ assuming $\omega_{\theta,\vk} = \romega_{\vk}^{\theta}$}
+Suppose that the scalar parameter $\theta$ appears only in the power of the eigenvalues of the kernel, i.e., $\omega_{\theta,\vk} = \romega_{\vk}^{\theta}$.  In this case, $\theta$ is like a smoothness parameter. By \eqref{eq:lambdaomega} it follows that
+\begin{equation}
+    \lambda_{\theta,i} = n\sum_{\substack{\vk \in \integers^d \\ \vk^T\vh \bmod n = l}} \romega_{\vk}^{2\theta}, \qquad 
+    \frac{\dif \lambda_{\theta,i}}{\dif \theta} = 2\theta n\sum_{\substack{\vk \in \integers^d \\ \vk^T\vh \bmod n = l}} \romega_{\vk}^{2\theta-1}
+\end{equation}
+
+Using these formulas to perform the optimization in \eqref{eq:EBOpt}, it follows that
+\begin{align*} 
+   0 & 
+   = - \left(\sum_{i=0}^{n-1}\frac{\lvert\rf_i\rvert^2} 
+   {\lambda_{\vtheta,i}^2}  \frac{\dif \lambda_{\theta,i}}{\dif \theta} \right)
+   \left( \sum_{j=0}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{\vtheta, j}} \right)^{-1} 
+   + \sum_{i=0}^{n-1} \frac 1{n\lambda_{\vtheta,i}} \frac{\dif \lambda_{\theta,i}}{\dif \theta}
+    \\
+    & \iff
+    \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}} = \frac 1n \sum_{j=0}^{n-1} \frac{\lvert\rf_j\rvert^2}{\lambda_{\vtheta,j}}, \quad i = 0, \ldots, n-1.
+\end{align*}
+
+\section{Kernel Flow Estimator} 
+
+Following \cite{chen2021consistency}, we are interested in optimizing the loss 
+$$L_\mathrm{KF} = 1- \frac{\vf_{:n/2}^T \left(\mK_{:n/2,:n/2}\right)^{-1} \vf_{:n/2}}{\vf^T \mK^{-1} \vf}.$$
+Note that this is invariant of a potential scaling factor $s^2$, so we ignore it. For lattice points in \emph{natural order} (not the linear ordering assumed throughout the rest of this article), we may write 
+$$\vlambda = n \begin{pmatrix} \mV^H & \mW \mV^H \\ \mV^H & - \mW \mV^H \end{pmatrix} \begin{pmatrix} \vk_{:n/2} \\ \vk_{n/2:} \end{pmatrix} = n \begin{pmatrix} \mV^H \vk_{:n/2} + \mW \mV^H \vk_{n/2:} \\ \mV^H \vk_{:n/2} - \mW \mV^H \vk_{n/2:} \end{pmatrix}$$
+where now $\mV$ is of size $n/2 \times n/2$ and $\mW$ is diagonal. Therefore, 
+$$\frac{1}{4} \left(\vlambda_{:n/2} + \vlambda_{n/2:}\right) = \frac{n}{2} \mV^H \vk_{:n/2}.$$
+Similarly, 
+$$\frac{1}{2} \left(\rvf_{:n/2} + \rvf_{n/2:}\right) = \mV^H \vf_{:n/2}.$$
+Therefore,
+\begin{align*}
+    \vf_{:n/2}^T \mK_{:n/2,:n/2}^{-1} \vf_{:n/2} 
+    &= (\mV^H \vf_{:n/2})^H \diag\left(\frac{n}{2}\mV^H \vk_{:n/2}\right)^{-1} (\mV^H \vf_{:n/2}) \\
+    &= \left(\rvf_{:n/2}+\rvf_{n/2:}\right)^H \left(\mLambda_{:n/2,:n/2}+\mLambda_{n/2:,n/2:}\right)^{-1}\left(\rvf_{:n/2}+\rvf_{n/2:}\right) \\
+    &= \sum_{i=0}^{n/2-1} \frac{\lvert \rf_i + \rf_{n/2+i} \rvert^2}{\lambda_{\vtheta,i} + \lambda_{\vtheta,n/2+i}}
+\end{align*}
+and 
+$$\vf^T \mK^{-1} \vf = \rvf^H \mLambda^{-1} \rvf = \sum_{i=0}^{n/2-1} \left(\frac{\lvert \rf_i \rvert^2}{\lambda_{\vtheta,i}} + \frac{\lvert \rf_{n/2+i} \rvert^2}{\lambda_{\vtheta,n/2+i}} \right)$$
+Therefore, 
+\begin{align*}
+    L_\mathrm{KF} &= 1 - \left[\sum_{i=0}^{n/2-1} \frac{\lvert \rf_i + \rf_{n/2+i} \rvert^2}{\lambda_{\vtheta,i} + \lambda_{\vtheta,n/2+i}}\right] \left[\sum_{i=0}^{n/2-1} \left(\frac{\lvert \rf_i \rvert^2}{\lambda_{\vtheta,i}} + \frac{\lvert \rf_{n/2+i} \rvert^2}{\lambda_{\vtheta,n/2+i}} \right)\right]^{-1} =: 1-C_1 C_2^{-1}.
+\end{align*}
+
+For $0 \leq j < n/2$ we have 
+\begin{align*}
+    \frac{\partial L_\mathrm{KF}}{\partial \lambda_{\textcolor{red}{j}}} 
+    =& \left[\frac{\lvert \rf_j + \rf_{n/2+j} \rvert^2}{(\lambda_{\vtheta,j} + \lambda_{\vtheta,n/2+j})^2}\right] C_2^{-1} - \frac{\lvert \rf_{\textcolor{red}{j}} \rvert^2}{\lambda_{\textcolor{red}{j}}^2} C_1 C_2^{-2} \\
+    \frac{\partial L_\mathrm{KF}}{\partial \lambda_{\textcolor{red}{n/2+j}}}
+    =& \left[\frac{\lvert \rf_j + \rf_{n/2+j} \rvert^2}{(\lambda_{\vtheta,j} + \lambda_{\vtheta,n/2+j})^2}\right]  C_2^{-1}  - \frac{\lvert \rf_{\textcolor{red}{n/2+j}} \rvert^2}{\lambda_{\textcolor{red}{n/2+j}}^2} C_1 C_2^{-2}
+\end{align*}
+where the only difference are the red indices.
+Setting these equal to $0$ gives 
+\begin{equation} \label{eq:KFoptcond}
+\frac{\lambda_{\vtheta,{\textcolor{red}{j}}}}{\lambda_{\vtheta,j} + \lambda_{\vtheta,n/2+j}} = \frac{\lvert \rf_{\textcolor{red}{j}} \rvert \sqrt{C_1C_2}}{\lvert \rf_j + \rf_{n/2+j} \rvert}, \qquad 
+\frac{\lambda_{\vtheta,{\textcolor{red}{n/2+j}}}}{\lambda_{\vtheta,j} + \lambda_{\vtheta,n/2+j}} = \frac{\lvert \rf_{\textcolor{red}{n/2+j}} \rvert \sqrt{C_1C_2}}{\lvert \rf_j + \rf_{n/2+j} \rvert},
+\end{equation}
+which implies that 
+\[
+1 = \frac{\lambda_{\vtheta,{j}} +  \lambda_{\vtheta,{n/2+j}}} {\lambda_{\vtheta,j} + \lambda_{\vtheta,n/2+j}} = 
+\frac{(\lvert \rf_{j} \rvert + \lvert \rf_{n/2+j} \rvert) \sqrt{C_1C_2}}{\lvert \rf_j + \rf_{n/2+j} \rvert}
+\]
+and that 
+\[
+\frac{\lvert \rf_j + \rf_{n/2+j} \rvert} {\lvert \rf_{j} \rvert + \lvert \rf_{n/2+j} \rvert} = \sqrt{C_1C_2}
+\]
+should be constant for all $j$.  \textcolor{green}{[Not sure if this can be true.]}
+
+But if it is true, then 
+\begin{equation*}
+\frac{\lambda_{\vtheta,{\textcolor{red}{j}}}}{\lambda_{\vtheta,j} + \lambda_{\vtheta,n/2+j}} = \frac{\lvert \rf_{\textcolor{red}{j}} \rvert }{\lvert \rf_{j} \rvert + \lvert \rf_{n/2+j} \rvert}, \qquad 
+\frac{\lambda_{\vtheta,{\textcolor{red}{n/2+j}}}}{\lambda_{\vtheta,j} + \lambda_{\vtheta,n/2+j}} = \frac{\lvert \rf_{\textcolor{red}{n/2+j}} \rvert}{\lvert \rf_{j} \rvert + \lvert \rf_{n/2+j} \rvert},
+\end{equation*}
+and so
+\begin{equation*}
+\lambda_{\vtheta,{\textcolor{red}{j}}} =  c_j \lvert \rf_{\textcolor{red}{j}} \rvert, \qquad 
+\lambda_{\vtheta,{\textcolor{red}{n/2+j}}}= c_j \lvert \rf_{\textcolor{red}{n/2+j}} \rvert,
+\end{equation*}
+which satisfies \eqref{eq:KFoptcond} for all $c_j$.  
+Note that now $\lambda_j$ is proportional to $\rf_j$ and \emph{not its square}.
+Moreover,
+\begin{align*}
+    C_1 & = \sum_{i=0}^{n/2-1} \frac{\lvert \rf_i + \rf_{n/2+i} \rvert^2}{\lambda_{\vtheta,i} + \lambda_{\vtheta,n/2+i}} 
+    = \sum_{i=0}^{n/2-1} \frac{\lvert \rf_i + \rf_{n/2+i} \rvert^2}
+    {c_i [\lvert \rf_i \rvert + \lvert \rf_{n/2+i} \rvert] } 
+    = C_1C_2 \sum_{i=0}^{n/2-1} \frac{\lvert \rf_i \rvert + \lvert \rf_{n/2+i} \rvert}
+    {c_i} \\
+    C_2 &= \sum_{i=0}^{n/2-1} \left(\frac{\lvert \rf_i \rvert^2}{\lambda_{\vtheta,i}} + \frac{\lvert \rf_{n/2+i} \rvert^2}{\lambda_{\vtheta,n/2+i}} \right) 
+    = \sum_{i=0}^{n/2-1} \frac{\lvert \rf_i \rvert + \lvert \rf_{n/2+i} \rvert} {c_i} 
+\end{align*}
+
+\textcolor{green}{[Still problematic.]}
+
+
+
+
+
+\iffalse
+
+For $0 \leq j < n/2$ we have 
+\begin{align*}
+    \frac{\partial L_\mathrm{KF}}{\partial \lambda_{\textcolor{red}{j}}} 
+    =& \left[\frac{\lvert \rf_j + \rf_{n/2+j} \rvert^2}{(\lambda_j + \lambda_{n/2+j})^2}\right] \left[\sum_{i=0}^{n/2-1} \left(\frac{\lvert \rf_i \rvert^2}{\lambda_i} + \frac{\lvert \rf_{n/2+i} \rvert^2}{\lambda_{n/2+i}} \right)\right]^{-1} \\
+    &- \frac{\lvert \rf_{\textcolor{red}{j}} \rvert^2}{\lambda_{\textcolor{red}{j}}^2} \left[\sum_{i=0}^{n/2-1} \frac{\lvert \rf_i + \rf_{n/2+i} \rvert^2}{\lambda_i + \lambda_{n/2+i}}\right] \left[\sum_{i=0}^{n/2-1} \left(\frac{\lvert \rf_i \rvert^2}{\lambda_i} + \frac{\lvert \rf_{n/2+i} \rvert^2}{\lambda_{n/2+i}} \right)\right]^{-2} \\
+    \frac{\partial L_\mathrm{KF}}{\partial \lambda_{\textcolor{red}{n/2+j}}}
+    =& \left[\frac{\lvert \rf_j + \rf_{n/2+j} \rvert^2}{(\lambda_j + \lambda_{n/2+j})^2}\right] \left[\sum_{i=0}^{n/2-1} \left(\frac{\lvert \rf_i \rvert^2}{\lambda_i} + \frac{\lvert \rf_{n/2+i} \rvert^2}{\lambda_{n/2+i}} \right)\right]^{-1} \\
+    &- \frac{\lvert \rf_{\textcolor{red}{n/2+j}} \rvert^2}{\lambda_{\textcolor{red}{n/2+j}}^2} \left[\sum_{i=0}^{n/2-1} \frac{\lvert \rf_i + \rf_{n/2+i} \rvert^2}{\lambda_i + \lambda_{n/2+i}}\right] \left[\sum_{i=0}^{n/2-1} \left(\frac{\lvert \rf_i \rvert^2}{\lambda_i} + \frac{\lvert \rf_{n/2+i} \rvert^2}{\lambda_{n/2+i}} \right)\right]^{-2} 
+\end{align*}
+where the only difference are the red indices. Setting these equal to $0$ gives 
+\begin{align*}
+    \frac{\lvert \rf_{\textcolor{red}{j}} \rvert^2}{\lambda_{\textcolor{red}{j}}^2} 
+    &= \frac{\lvert \rf_j + \rf_{n/2+j} \rvert^2}{(\lambda_j + \lambda_{n/2+j})^2} \cdot \frac{C_2}{C_1} \qquad\implies\qquad \lambda_{\textcolor{red}{j}} = \lvert \rf_{\textcolor{red}{j}} \rvert \frac{(\lambda_j + \lambda_{n/2+j})}{\lvert \rf_j + \rf_{n/2+j} \rvert} C \\
+    \frac{\lvert \rf_{\textcolor{red}{n/2+j}} \rvert^2}{\lambda_{\textcolor{red}{n/2+j}}^2} 
+    &= \frac{\lvert \rf_j + \rf_{n/2+j} \rvert^2}{(\lambda_j + \lambda_{n/2+j})^2} \cdot \frac{C_2}{C_1} \qquad\implies\qquad \lambda_{\textcolor{red}{n/2+j}} = \lvert \rf_{\textcolor{red}{n/2+j}} \rvert \frac{(\lambda_j + \lambda_{n/2+j})}{\lvert \rf_j + \rf_{n/2+j} \rvert} C.
+\end{align*}
+where $C = \sqrt{C_1/C_2}$.
+
+For $x=\lambda_j$, $y=\lambda_{n/2+j}$, $\alpha = \frac{\lvert \rf_j \rvert}{\lvert \rf_j + \rf_{n/2+j} \rvert}C$, and $\beta = \frac{\lvert \rf_{n/2+j} \rvert}{\lvert \rf_j + \rf_{n/2+j} \rvert}C$ we would like to solve the system 
+$$\begin{cases} x = \alpha (x+y) \\ y = \beta (x+y) \end{cases}.$$ 
+This implies $x(1-\alpha) = \alpha y$ so $x = \alpha/(1-\alpha) y$ and 
+$$y = \beta y \left(\frac{\alpha}{1-\alpha} + 1\right) = \frac{\beta}{1-\alpha} y$$
+which implies $\lambda_j=\lambda_{n/2+j}=0$. \textcolor{blue}{Something must be off with the above derivation}
+
+\fi
+
 
 \bibliographystyle{amsplain}
-\bibliography{FJH25,FJHown25}
+\bibliography{FJH25,FJHown25,main}
 
-\end{document}
+%\end{document}
 
+\section{Optimizing the Kernel According to Cross Validation}
+\subsection{Initial optimization for the vertical scale factor}
 
+Let $\ci \subseteq \{1,\dots,n\}$ be the included indices and denote the left out indices by $\overline{\ci} = \{1,\dots,n\} \setminus \ci$. Let us write the partitions
+$$\mK = \begin{pmatrix} \mK_{\overline{\ci}\,\overline{\ci}}  & \mK_{\overline{\ci}\ci} \\ \mK_{\ci\overline{\ci}} & \mK_{\ci\ci} \end{pmatrix}, \qquad \mK^{-1} = \begin{pmatrix} \mA_{\overline{\ci}\,\overline{\ci}}  & \mA_{\overline{\ci}\ci} \\ \mA_{\ci\overline{\ci}} & \mA_{\ci\ci} \end{pmatrix}, \qquad \vf = \begin{pmatrix} \vf_{\overline{\ci}} \\ \vf_\ci \end{pmatrix}$$
+and 
+$$\vxi = \begin{pmatrix} \vxi_{\overline{\ci}} \\ \vxi_\ci\end{pmatrix} = \mK^{-1} \vf.$$
+Then 
+$$\check{\vf}_{\overline{\ci}} = \mK_{\overline{\ci} \ci} \mK_{\ci \ci}^{-1} \vf_\ci$$
+and 
+\begin{align*}
+    \vxi_{\overline{\ci}} &= A_{\overline{\ci}\,\overline{\ci}} \vf_{\overline{\ci}} + A_{\overline{\ci}\ci} \vf_\ci \\
+    &= A_{\overline{\ci}\,\overline{\ci}} \vf_{\overline{\ci}} - A_{\overline{\ci}\,\overline{\ci}} \mK_{\overline{\ci}\ci} \mK_{\ci \ci}^{-1} \vf_\ci \\
+    &= A_{\overline{\ci}\,\overline{\ci}} \left(\vf_{\overline{\ci}} - \check{\vf}_{\overline{\ci}}\right) \\
+    \implies \vf_{\overline{\ci}} - \check{\vf}_{\overline{\ci}} &= A_{\overline{\ci}\,\overline{\ci}}^{-1} \vxi_{\overline{\ci}}. 
+\end{align*}
+Let $\ci_1,\dots,\ci_F \subseteq \{1,\dots,n\}$ be mutually disjoint sets so that $\{1,\dots,n\} = \cup_{j=1}^F \ci_j$. Then the cross validation loss is 
+$$\mathrm{CV} := \sum_{j=1}^F \left(\vf_{\overline{\ci_j}} - \check{\vf}_{\overline{\ci_j}}\right)^T \left(\vf_{\overline{\ci_j}} - \check{\vf}_{\overline{\ci_j}}\right) = \sum_{j=1}^F \vxi_{\overline{\ci_j}}^T A_{\overline{\ci_j}\,\overline{\ci_j}}^{-2} \vxi_{\overline{\ci_j}}.$$
+
+\subsection{Leave One Out CV (LOOCV)} 
+
+Leave one out CV sets $F=n$ and $\overline{\ci_j} = \{j\}$ for $j=1,\dots,n$. Then 
+$$\mathrm{LOOCV} = \sum_{i=0}^{n-1} \frac{\xi_i^2}{a_{ii}^2}.$$
+Since $\mK = \frac{1}{n} \mV \mLambda \mV^H$ is circulant, $\mK^{-1} = n \mV \mLambda^{-1} \mV^H$ is also circulant, so $\mK^{-1}$ has a constant diagonal, i.e. $a_{00} = a_{11} = \cdots$. Specifically, the first column of $\mK^{-1}$ is  
+$$\va_0 = \frac{1}{n} \mV^H \mLambda^{-1} \boldsymbol{1},$$
+so the constant along the diagonal is 
+$$a_{00} = \frac{1}{n} \boldsymbol{1}^T \mLambda^{-1} \boldsymbol{1} = \frac{1}{n} \sum_{i=0}^{n-1} \lambda_i^{-1} = \boldsymbol{1}^T \vlambda^{-1}/n$$
+where $\vlambda^{-1}$ is the elementwise inverse of the vector $\vlambda$. Therefore, 
+$$\mathrm{LOOCV} = \frac{\sum_{i=0}^{n-1} \xi_i^2}{\left(\frac{1}{n} \sum_{i=0}^{n-1} \lambda_i^{-1}\right)^2} = n^6 \left(\sum_{i=0}^{n-1} \frac{\lvert \rf_i \rvert^2}{\lvert \lambda_i \rvert^2}\right) \left\lvert \sum_{i=0}^{n-1} \lambda_i^{-1}\right\rvert^{-2}$$
+using 
+$$\vxi^T \vxi = \vf^T \mK^{-1} \mK^{-1} \vf = n^2 \vf^T \mV \mLambda^{-2} \mV^H \vf = n^4 \rvf^H \mLambda^{-2} \rvf$$
+
+\subsubsection{Optimization of $s^2$} 
+
+\textcolor{blue}{Not sure what to do here as LOOCV is monotone in $s^2$.}
+
+\subsubsection{Optimizing $\vtheta$} 
+
+The derivative of LOOCV with respect to $\lambda_i$ is proportional to 
+
+$$-2 \frac{\lvert \rf_i \rvert^2}{\lvert \lambda_i \rvert^{3}} \left\lvert \sum_{i=0}^{n-1} \lambda_i^{-1}\right\rvert^{-2} +2 \left(\sum_{i=0}^{n-1} \frac{\lvert \rf_i \rvert^2}{\lvert \lambda_i \rvert^2}\right) \left\lvert \sum_{i=0}^{n-1} \lambda_i^{-1}\right\rvert^{-3} \lambda_i^{-2}$$
+
+\textcolor{blue}{Not sure where to go from here.} 
+
+\section{GCV}
 
 According to \cite{RatHic19a}, the generalized cross-validation choice of parameters defining the kernel is
 \begin{align*}
     \vtheta_{\text{GCV}} 
-    &= \argmin_{\vtheta} \left [\log\left( \sum_{i=1}^{n-1} \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}^2} \right)
+    &= \argmin_{\vtheta} \left [\log\left( \sum_{i=0}^{n-1} \frac{\lvert\rf_i\rvert^2}{\lambda_{\vtheta,i}^2} \right)
     - 2 \log \left(\sum_{i=0}^{n-1} \frac{1}{\lambda_{\vtheta,i}} \right) \right ]
 \end{align*}
 
@@ -185,3 +369,4 @@ Again, suppose for a moment that the $\lambda_{\vtheta}$ can be chosen arbitrari
      \lambda_0 = \infty, \qquad \lambda_i = c \lvert\rf_i\rvert^2, \quad i = 1, \ldots, n-1.
 \end{gather*}
 
+\end{document}
